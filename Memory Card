@@ -1,0 +1,172 @@
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from random import *
+
+class Q():
+    def __init__ (self, q, right, wrong1, wrong2, wrong3):
+        self.q = q
+        self.right = right
+        self.wrong1 = wrong1
+        self.wrong2 = wrong2
+        self.wrong3 = wrong3
+
+questions_list = []
+questions_list.append(Q('Какой народ раньше проживал на территории Уральских гор?', 'Марийцы', 'Смурфы', 'Индейцы', 'Чеченцы'))
+questions_list.append(Q('Столицы Свердловской области - ...', 'Екатеринбург', 'Москва', 'Казань', 'Биробиджан'))
+questions_list.append(Q('Столица Башкортостана - ...', 'Уфа', 'Элиста', 'Новоуральск', 'Ыб'))
+questions_list.append(Q('Столица Кабардино-Балкарской республики - ...', 'Нальчик', 'Комар', 'Висим', 'Петропавловск-Камчатский'))
+questions_list.append(Q('Столица Марий Эл - ...', 'Йошкар-Ола', 'Юкотан', 'Карелия', 'Грозный'))
+questions_list.append(Q('Столица Карачаево-Черкесской республики - ...', 'Карачаево-Черкесск', 'Нижний Тагил', 'Лондон', 'Тэгу'))
+questions_list.append(Q('Столица Коми - ...', 'Сыктывкар', 'Чебоксары', 'Майкоп', 'Магас'))
+
+
+app = QApplication([])
+
+
+#Окно с вопросами
+Question = QLabel('Какой народ раньше проживал на территории Уральских гор?')
+QuestionGroupBox = QGroupBox('Варианты ответа')
+
+btn_1 = QRadioButton('1')
+btn_2 = QRadioButton('2')
+btn_3 = QRadioButton('3')
+btn_4 = QRadioButton('4')
+Btn = QPushButton('Ответить')
+RadioGroup = QButtonGroup()
+RadioGroup.addButton(btn_1)
+RadioGroup.addButton(btn_2)
+RadioGroup.addButton(btn_3)
+RadioGroup.addButton(btn_4)
+layout_ans1 = QHBoxLayout()
+layout_ans2 = QVBoxLayout()
+layout_ans3 = QVBoxLayout()
+
+layout_ans2.addWidget(btn_1)
+layout_ans2.addWidget(btn_2)
+layout_ans3.addWidget(btn_3)
+layout_ans3.addWidget(btn_4)
+
+layout_ans1.addLayout(layout_ans2)
+layout_ans1.addLayout(layout_ans3)
+QuestionGroupBox.setLayout(layout_ans1)
+
+line1 = QHBoxLayout()
+line2 = QHBoxLayout()
+line3 = QHBoxLayout()
+
+line1.addWidget(Question, alignment =Qt.AlignVCenter)
+line2.addWidget(QuestionGroupBox)
+line3.addWidget(Btn)
+
+layout_card = QVBoxLayout()
+layout_card.addLayout(line1)
+layout_card.addLayout(line2)
+layout_card.addLayout(line3)
+
+Res = QLabel('Какой народ раньше проживал на территории Уральских гор?')
+ResGroupBox = QGroupBox('Результат')
+Correct = QLabel('Правильно')
+Total = QLabel('Марийцы')
+
+layout_res = QVBoxLayout()
+layout_res.addWidget(Correct, alignment = Qt.AlignTop)
+layout_res.addWidget(Total, alignment = Qt.AlignCenter)
+ResGroupBox.setLayout(layout_res)
+
+line_res_1 = QHBoxLayout()
+line_res_2 = QHBoxLayout()
+line_res_3 = QHBoxLayout()
+
+line_res_1.addWidget(Res, alignment = Qt.AlignCenter)
+line_res_2.addWidget(ResGroupBox)
+line_res_2.addWidget(QuestionGroupBox)
+ResGroupBox.hide()
+line_res_3.addWidget(Btn)
+
+layout_card = QVBoxLayout()
+layout_card.addLayout(line_res_1)
+layout_card.addLayout(line_res_2)
+layout_card.addLayout(line_res_3)
+
+def show_res():
+    QuestionGroupBox.hide()
+    ResGroupBox.show()
+    Btn.setText('Следующий вопрос')
+
+
+def show_q():
+    QuestionGroupBox.show()
+    ResGroupBox.hide()
+    Btn.setText('Ответить')
+    RadioGroup.setExclusive(False)
+    btn_1.setChecked(False)
+    btn_2.setChecked(False)
+    btn_3.setChecked(False)
+    btn_4.setChecked(False)
+    RadioGroup.setExclusive(True)
+
+'''def Test():
+    if 'Ответить' == Btn.text():
+        show_res()
+    else:
+        show_q()'''
+
+answer = [btn_1, btn_2, btn_3, btn_4]
+
+def ask(q: Q):
+    shuffle(answer)
+    answer[0].setText(q.right)
+    answer[1].setText(q.wrong1)
+    answer[2].setText(q.wrong2)
+    answer[3].setText(q.wrong3)
+    Res.setText(q.q)
+    Total.setText(q.right)
+    show_q()
+
+def check_answers(res):
+    Correct.setText(res)
+    show_res()
+
+def ch_answers():
+    if answer[0].isChecked():
+        check_answers('Верно!')
+        win.score += 1
+        print('Статистика:')
+        print('Количество вопросов:', win.total)
+        print('Верных ответов:', win.score)
+        print('Рейтинг:', win.score/win.total*100, '%')
+       
+    else:
+        if answer[1].isChecked() or answer[2].isChecked() or answer[3].isChecked():
+            check_answers('Неверно!')
+            print('Количество вопросов:', win.total)
+            print('Верных ответов:', win.score)
+            print('Рейтинг:', win.score/win.total*100, '%')
+            
+def next_question():
+    win.total += 1
+    print('Статистика:')
+    print('Количество вопросов:', win.total)
+    print('Верных ответов:', win.score) 
+    
+    cur_question = randint(0, len(questions_list) - 1)
+    q = questions_list[cur_question]
+    ask(q)
+
+def click():
+    if Btn.text() == 'Ответить':
+        ch_answers()
+    else:
+        next_question()
+     
+win = QWidget()
+win.setWindowTitle('Memory Card')
+
+win.setLayout(layout_card)
+win.score = 0
+win.total = 0
+next_question()
+Btn.clicked.connect(click)
+
+win.show()
+app.exec_()
